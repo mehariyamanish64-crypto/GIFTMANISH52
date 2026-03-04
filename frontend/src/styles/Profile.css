@@ -1,0 +1,138 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  padding: 50px 20px;
+  background-color: #f3f3f3;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.profile-card {
+  background-color: #fff;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 400px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+}
+
+.profile-card h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 2px solid #ccc;
+}
+
+.profile-placeholder {
+  width: 120px;
+  height: 120px;
+  background-color: #ddd;
+  border-radius: 50%;
+  line-height: 120px;
+  color: #555;
+  margin: 0 auto 15px;
+  font-size: 14px;
+}
+
+.profile-info {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.profile-info div {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+input[type="text"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+input[readonly] {
+  background-color: #f9f9f9;
+  color: #555;
+}
+
+.radio-group {
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.radio-group label {
+  font-weight: normal;
+}
+
+.radio-label {
+  margin-right: 15px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.radio-label input[type="radio"] {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.profile-button {
+  background-color: #ff9900;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: 1;
+}
+
+.profile-button:hover {
+  background-color: #e68a00;
+}
+
+.profile-button.remove {
+  background-color: #d9534f;
+}
+
+.profile-button.remove:hover {
+  background-color: #c9302c;
+}
+
+.profile-card div.radio-group + div.radio-group {
+  margin-top: 8px;
+}
+
+button.profile-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    width: 100%;
+    padding: 20px;
+  }
+}
