@@ -3,24 +3,35 @@ import { useNavigate } from "react-router-dom";
 import "../styles/ProductCard.css";
 
 export default function ProductCard({ product, onAddToCart }) {
+
   const navigate = useNavigate();
 
-  // ✅ Buy Now handler
   const handleBuyNow = () => {
-    // Single product ko cart me temporarily save karo
     localStorage.setItem("cart", JSON.stringify([product]));
-
-    // Checkout page pe redirect karo
     navigate("/checkout");
+  };
+
+  const goToProduct = () => {
+    navigate(`/product/${product._id}`);
   };
 
   return (
     <div className="product-card">
+
       {/* Product Image */}
-      <img src={product.image} alt={product.name} />
+      <img
+        src={product.image}
+        alt={product.name}
+        onClick={goToProduct}
+        style={{ cursor: "pointer" }}
+      />
 
       {/* Product Info */}
-      <div className="product-info">
+      <div
+        className="product-info"
+        onClick={goToProduct}
+        style={{ cursor: "pointer" }}
+      >
         <h3>{product.name}</h3>
         <div className="category">{product.category}</div>
         <p className="price">₹{product.price}</p>
@@ -28,10 +39,8 @@ export default function ProductCard({ product, onAddToCart }) {
 
       {/* Buttons */}
       <div className="product-card-buttons">
-        <button
-          className="buy-btn"
-          onClick={handleBuyNow}
-        >
+
+        <button className="buy-btn" onClick={handleBuyNow}>
           Buy Now
         </button>
 
@@ -41,7 +50,9 @@ export default function ProductCard({ product, onAddToCart }) {
         >
           Add to Cart
         </button>
+
       </div>
+
     </div>
   );
 }

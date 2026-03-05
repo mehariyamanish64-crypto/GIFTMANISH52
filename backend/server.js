@@ -16,7 +16,8 @@ mongoose.connect(process.env.MONGO_URI)
 
 // ================= ROUTES =================
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/products", require("./routes/productRoutes"));  // 👈 Product Route Added
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/orders", require("./routes/orderRoutes")); // ✅ Razorpay Payment Route
 
 // ================= DEFAULT ROUTE =================
 app.get("/", (req, res) => {
@@ -24,7 +25,7 @@ app.get("/", (req, res) => {
 });
 
 // ================= SERVER START =================
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

@@ -6,47 +6,43 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Place Order (creates Razorpay order + saves order in MongoDB)
+// Create order
 const placeOrder = async (req, res) => {
-  const { cartItems, amount } = req.body;
+  const { amount } = req.body;
 
   try {
-    // Create Razorpay order
     const options = {
-      amount: amount * 100, // convert to paise
+      amount: amount * 100,
       currency: "INR",
-      receipt: "order_rcpt_" + new Date().getTime(),
+      receipt: "order_" + Date.now(),
     };
+
     const razorpayOrder = await razorpay.orders.create(options);
 
-    // Save order in MongoDB
     const order = await Order.create({
       userId: req.user._id,
-      products: cartItems,
       amount,
-      paymentId: null, // will update after payment success
       status: "pending",
       razorpayOrderId: razorpayOrder.id,
     });
 
     res.json({
-      orderId: order._id,
-      razorpayOrder,
+      id: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      orderId: order._id
     });
+
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Order placement failed" });
+    res.status(500).json({ message: "Order creation failed" });
   }
 };
 
-// Get all orders (admin)
+// Get Orders
 const getOrders = async (req, res) => {
-  try {
-    const orders = await Order.find().populate("userId", "name email");
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: "Fetching orders failed" });
-  }
+  const orders = await Order.find();
+  res.json(orders);
 };
 
 module.exports = { placeOrder, getOrders };

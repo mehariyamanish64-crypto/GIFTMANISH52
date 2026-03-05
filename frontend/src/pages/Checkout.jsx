@@ -1,98 +1,92 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
+import axiosInstance from "../api/axiosInstance";
 
 export default function Checkout() {
-  const [cart, setCart] = useState([]);
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    setCart(storedCart);
-    setUser(storedUser);
-  }, []);
-
-  const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+  const totalAmount = cart.reduce((acc, item) => acc + item.price, 0);
 
   const handlePayment = async () => {
-    try {
-      if (!user) {
-        alert("Please login first");
-        return;
-      }
 
-      // 1️⃣ Create order in backend
-      const { data } = await axios.post(
-        "/api/orders",
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+
+      const res = await axiosInstance.post(
+        "/orders/create-order",
+        { amount: totalAmount },
         {
-          cartItems: cart,
-          amount: totalAmount,
-        },
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      // 2️⃣ Razorpay options
+      const order = res.data;
+
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-        amount: data.razorpayOrder.amount,
+        key: "YOUR_RAZORPAY_KEY_ID",
+        amount: order.amount,
         currency: "INR",
         name: "GiftShop",
-        description: "Purchase from GiftShop",
-        order_id: data.razorpayOrder.id,
-        handler: async function (response) {
-          alert("Payment Successful! ✅");
+        description: "Gift Purchase",
+        order_id: order.id,
 
-          await axios.put(
-            `/api/orders/${data.orderId}`,
-            {
-              paymentId: response.razorpay_payment_id,
-              status: "completed",
-            },
-            {
-              headers: { Authorization: `Bearer ${user.token}` },
-            }
-          );
+        handler: function (response) {
+          alert("Payment Successful ✅");
+          console.log(response);
+        },
 
-          localStorage.removeItem("cart"); // clear cart
-          window.location.href = "/";
+        theme: {
+          color: "#ff9900",
         },
-        prefill: {
-          name: user.name,
-          email: user.email,
-          contact: user.mobile || "",
-        },
-        theme: { color: "#ff9900" },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+
     } catch (error) {
       console.log(error);
-      alert("Payment Failed ❌");
+      alert("Payment failed");
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
+    <div style={{ padding: "40px" }}>
+
+      <h1>Checkout</h1>
+
+      {cart.map((item, index) => (
+        <div key={index}>
+          <h3>{item.name}</h3>
+          <p>₹{item.price}</p>
+        </div>
+      ))}
+
       <h2>Total: ₹{totalAmount}</h2>
 
       <button
         onClick={handlePayment}
         style={{
-          padding: "12px 25px",
-          backgroundColor: "#ff9900",
+          padding: "12px 20px",
+          background: "#ff9900",
           border: "none",
-          borderRadius: "8px",
           color: "#fff",
-          fontWeight: 600,
+          fontSize: "16px",
           cursor: "pointer",
+          borderRadius: "8px"
         }}
       >
         Pay Now
       </button>
+
     </div>
   );
 }

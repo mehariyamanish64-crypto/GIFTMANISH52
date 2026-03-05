@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
-import "../styles/Login.css"; // ✅ Import Login CSS
+import "../styles/Login.css";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -16,8 +16,15 @@ export default function Login() {
 
     try {
       const res = await axiosInstance.post("/auth/login", formData);
-      alert(res.data.message);
-      navigate("/products"); // ✅ Redirect to products page
+
+      // ✅ TOKEN SAVE KARNA ZAROORI HAI
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      alert("Login Successful ✅");
+
+      navigate("/products");
+
     } catch (error) {
       alert(error.response?.data?.message || "Login Failed ❌");
     }
@@ -27,6 +34,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
         <h2>Login</h2>
+
         <form onSubmit={submit}>
           <div className="input-group">
             <input
