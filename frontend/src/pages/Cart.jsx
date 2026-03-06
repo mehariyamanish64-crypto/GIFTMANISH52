@@ -1,8 +1,11 @@
 // src/pages/Cart.jsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
+
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
 
   // Load cart from localStorage
   useEffect(() => {
@@ -10,22 +13,34 @@ export default function Cart() {
     setCartItems(storedCart);
   }, []);
 
+  // Back Button
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   // Remove single item
   const handleRemove = (index) => {
+
     const updatedCart = [...cartItems];
     const removedItem = updatedCart.splice(index, 1)[0];
+
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+
     alert(`${removedItem.name} removed from cart ❌`);
   };
 
   // Buy single item
   const handleBuyNow = (item) => {
-    alert(`Proceeding to buy ${item.name} for ₹${item.price} 🛒`);
+
+    localStorage.setItem("cart", JSON.stringify([item]));
+
+    navigate("/checkout");
   };
 
   // Remove all items
   const handleRemoveAll = () => {
+
     if (window.confirm("Are you sure you want to remove all items?")) {
       setCartItems([]);
       localStorage.removeItem("cart");
@@ -34,12 +49,13 @@ export default function Cart() {
 
   // Buy all items
   const handleBuyAll = () => {
-    if (cartItems.length === 0) return alert("Cart is empty 😢");
-    let total = cartItems.reduce((acc, item) => acc + item.price, 0);
-    alert(`Proceeding to buy all items for ₹${total} 🛒`);
-    // Optionally, clear cart after buying
-    // setCartItems([]);
-    // localStorage.removeItem("cart");
+
+    if (cartItems.length === 0) {
+      alert("Cart is empty 😢");
+      return;
+    }
+
+    navigate("/checkout");
   };
 
   return (
@@ -47,10 +63,29 @@ export default function Cart() {
       style={{
         maxWidth: "600px",
         margin: "50px auto",
-        fontFamily: "Poppins, sans-serif"
+        fontFamily: "Poppins"
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>Your Cart</h2>
+
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        style={{
+          marginBottom: "20px",
+          padding: "8px 16px",
+          background: "#444",
+          color: "#fff",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer"
+        }}
+      >
+        ← Back
+      </button>
+
+      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
+        Your Cart
+      </h2>
 
       {cartItems.length === 0 ? (
         <p style={{ textAlign: "center" }}>Cart is empty 😢</p>
@@ -67,42 +102,40 @@ export default function Cart() {
                 padding: "10px 15px",
                 background: "#2c2c3e",
                 borderRadius: "10px",
-                color: "#fff",
-                flexDirection: "column",
-                gap: "10px"
+                color: "#fff"
               }}
             >
-              <div
+
+              {/* Product Image */}
+              <img
+                src={item.image}
+                alt={item.name}
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%"
+                  width: "50px",
+                  height: "50px",
+                  objectFit: "cover",
+                  borderRadius: "6px"
                 }}
-              >
-                <div>
-                  <h4>{item.name}</h4>
-                  <p>₹{item.price}</p>
-                </div>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  style={{ width: "60px", borderRadius: "5px" }}
-                />
+              />
+
+              {/* Product Info */}
+              <div style={{ flex: 1, marginLeft: "15px" }}>
+                <h4>{item.name}</h4>
+                <p>₹{item.price}</p>
               </div>
 
-              {/* Buttons for single item */}
+              {/* Buttons */}
               <div style={{ display: "flex", gap: "10px" }}>
+
                 <button
                   onClick={() => handleBuyNow(item)}
                   style={{
-                    padding: "8px 16px",
+                    padding: "6px 12px",
                     borderRadius: "6px",
                     border: "none",
                     backgroundColor: "#ffd700",
                     color: "#222",
-                    cursor: "pointer",
-                    fontWeight: 600
+                    cursor: "pointer"
                   }}
                 >
                   Buy Now
@@ -111,22 +144,23 @@ export default function Cart() {
                 <button
                   onClick={() => handleRemove(index)}
                   style={{
-                    padding: "8px 16px",
+                    padding: "6px 12px",
                     borderRadius: "6px",
                     border: "none",
                     backgroundColor: "#ff4d4d",
                     color: "#fff",
-                    cursor: "pointer",
-                    fontWeight: 600
+                    cursor: "pointer"
                   }}
                 >
                   Remove
                 </button>
+
               </div>
+
             </div>
           ))}
 
-          {/* Buy All & Remove All Buttons */}
+          {/* Bottom Buttons */}
           <div
             style={{
               display: "flex",
@@ -135,6 +169,7 @@ export default function Cart() {
               marginTop: "30px"
             }}
           >
+
             <button
               onClick={handleBuyAll}
               style={{
@@ -164,9 +199,11 @@ export default function Cart() {
             >
               Remove All
             </button>
+
           </div>
         </>
       )}
+
     </div>
   );
 }

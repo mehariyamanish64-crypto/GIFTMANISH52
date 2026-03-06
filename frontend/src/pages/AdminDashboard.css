@@ -1,27 +1,106 @@
-.toggle-add-product-btn {
-  display: block;
-  margin: 0 auto 20px auto;  /* center button with bottom margin */
-  padding: 12px 28px;         /* button size */
-  background: linear-gradient(135deg, #28a745, #218838); /* green gradient */
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.15);  /* subtle shadow */
+.admin-dashboard{
+text-align:center;
+padding:20px;
+font-family:Arial;
 }
 
-/* Hover effect */
-.toggle-add-product-btn:hover {
-  background: linear-gradient(135deg, #218838, #1c6c2f);
-  transform: translateY(-2px);
-  box-shadow: 0px 6px 12px rgba(0,0,0,0.2);  /* lifted shadow */
+/* buttons */
+.admin-buttons{
+display:flex;
+justify-content:center;
+gap:20px;
+margin-bottom:25px;
+flex-wrap:wrap;
 }
 
-/* Optional: active state (if clicked) */
-.toggle-add-product-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0px 3px 8px rgba(0,0,0,0.15);
+/* Add product */
+.toggle-add-product-btn{
+padding:12px 28px;
+background:linear-gradient(135deg,#28a745,#218838);
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+font-weight:600;
+}
+
+/* Manage product */
+.toggle-manage-product-btn{
+padding:12px 28px;
+background:linear-gradient(135deg,#ffc107,#ff9800);
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+font-weight:600;
+}
+
+/* Orders */
+.toggle-order-btn{
+padding:12px 28px;
+background:linear-gradient(135deg,#007bff,#0056b3);
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+font-weight:600;
+}
+
+/* Payments */
+.toggle-payment-btn{
+padding:12px 28px;
+background:linear-gradient(135deg,#6f42c1,#5a32a3);
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+font-weight:600;
+}
+
+/* table */
+.product-table-container{
+max-width:900px;
+margin:auto;
+}
+
+.product-table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+.product-table th{
+background:#28a745;
+color:white;
+padding:10px;
+}
+
+.product-table td{
+border:1px solid #ddd;
+padding:10px;
+}
+
+/* edit */
+.edit-btn{
+background:#007bff;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:4px;
+margin-right:5px;
+cursor:pointer;
+}
+
+/* delete */
+.delete-btn{
+background:#dc3545;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:4px;
+cursor:pointer;
 }

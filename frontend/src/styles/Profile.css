@@ -7,6 +7,8 @@
   font-family: Arial, sans-serif;
 }
 
+/* Card */
+
 .profile-card {
   background-color: #fff;
   padding: 30px 25px;
@@ -28,6 +30,8 @@
   font-size: 24px;
 }
 
+/* Profile Image */
+
 .profile-image {
   width: 120px;
   height: 120px;
@@ -36,6 +40,8 @@
   margin-bottom: 15px;
   border: 2px solid #ccc;
 }
+
+/* Placeholder */
 
 .profile-placeholder {
   width: 120px;
@@ -48,6 +54,8 @@
   font-size: 14px;
 }
 
+/* Info */
+
 .profile-info {
   margin-bottom: 20px;
   text-align: left;
@@ -57,6 +65,8 @@
   margin-bottom: 10px;
   font-size: 16px;
 }
+
+/* Inputs */
 
 input[type="text"],
 input[type="file"],
@@ -74,6 +84,8 @@ input[readonly] {
   background-color: #f9f9f9;
   color: #555;
 }
+
+/* Radio */
 
 .radio-group {
   margin-bottom: 12px;
@@ -97,6 +109,8 @@ input[readonly] {
   cursor: pointer;
 }
 
+/* Buttons */
+
 .profile-button {
   background-color: #ff9900;
   color: #fff;
@@ -113,6 +127,8 @@ input[readonly] {
   background-color: #e68a00;
 }
 
+/* Remove Button */
+
 .profile-button.remove {
   background-color: #d9534f;
 }
@@ -121,18 +137,43 @@ input[readonly] {
   background-color: #c9302c;
 }
 
-.profile-card div.radio-group + div.radio-group {
-  margin-top: 8px;
+/* Logout Button */
+
+.profile-button.logout {
+  background-color: #333;
 }
+
+.profile-button.logout:hover {
+  background-color: #111;
+}
+
+/* Button Row */
+
+.profile-card div[style] {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Disabled */
 
 button.profile-button:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
 
+/* Responsive */
+
 @media (max-width: 480px) {
+
   .profile-card {
     width: 100%;
     padding: 20px;
   }
+
+  .profile-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
 }

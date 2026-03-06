@@ -1,11 +1,22 @@
 import React from "react";
 import axiosInstance from "../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 export default function Checkout() {
 
+  const navigate = useNavigate();
+
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  const totalAmount = cart.reduce((acc, item) => acc + item.price, 0);
+  const totalAmount = cart.reduce(
+    (acc, item) => acc + Number(item.price) * (item.quantity || 1),
+    0
+  );
+
+  // Back button function
+  const handleBack = () => {
+    navigate(-1); // previous page
+  };
 
   const handlePayment = async () => {
 
@@ -13,7 +24,7 @@ export default function Checkout() {
 
     if (!token) {
       alert("Please login first");
-      window.location.href = "/login";
+      navigate("/login");
       return;
     }
 
@@ -32,16 +43,21 @@ export default function Checkout() {
       const order = res.data;
 
       const options = {
-        key: "YOUR_RAZORPAY_KEY_ID",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
-        currency: "INR",
+        currency: order.currency,
         name: "GiftShop",
         description: "Gift Purchase",
         order_id: order.id,
 
         handler: function (response) {
+
           alert("Payment Successful ✅");
           console.log(response);
+
+          localStorage.removeItem("cart");
+
+          navigate("/profile");
         },
 
         theme: {
@@ -59,18 +75,62 @@ export default function Checkout() {
   };
 
   return (
-    <div style={{ padding: "40px" }}>
+    <div style={{ padding: "40px", maxWidth: "600px", margin: "auto" }}>
+
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        style={{
+          marginBottom: "20px",
+          padding: "8px 16px",
+          background: "#555",
+          color: "#fff",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer"
+        }}
+      >
+        ← Back
+      </button>
 
       <h1>Checkout</h1>
 
       {cart.map((item, index) => (
-        <div key={index}>
-          <h3>{item.name}</h3>
-          <p>₹{item.price}</p>
+        <div
+          key={index}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "15px",
+            border: "1px solid #ddd",
+            padding: "10px",
+            borderRadius: "8px",
+            marginBottom: "10px"
+          }}
+        >
+
+          <img
+            src={item.image}
+            alt={item.name}
+            style={{
+              width: "60px",
+              height: "60px",
+              objectFit: "cover",
+              borderRadius: "6px"
+            }}
+          />
+
+          <div>
+            <h4>{item.name}</h4>
+            <p>Price: ₹{item.price}</p>
+            <p>Qty: {item.quantity || 1}</p>
+            <p>Total: ₹{item.price * (item.quantity || 1)}</p>
+          </div>
+
         </div>
       ))}
 
-      <h2>Total: ₹{totalAmount}</h2>
+      <h2>Total Amount: ₹{totalAmount}</h2>
 
       <button
         onClick={handlePayment}

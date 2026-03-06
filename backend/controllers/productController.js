@@ -1,16 +1,34 @@
 const Product = require("../models/Product");
 
+// ADD PRODUCT
 exports.addProduct = async (req, res) => {
-  const product = await Product.create(req.body);
-  res.json(product);
+  try {
+
+    const product = await Product.create(req.body);
+
+    res.status(201).json(product);
+
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
+
+// GET ALL PRODUCTS
 exports.getProducts = async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+  try {
+
+    const products = await Product.find();
+
+    res.json(products);
+
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
-// ✅ GET SINGLE PRODUCT
+
+// GET SINGLE PRODUCT
 exports.getSingleProduct = async (req, res) => {
   try {
 
@@ -23,6 +41,22 @@ exports.getSingleProduct = async (req, res) => {
     res.json(product);
 
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+// CATEGORY PRODUCTS
+exports.getProductsByCategory = async (req, res) => {
+  try {
+
+    const products = await Product.find({
+      category: req.params.categoryName
+    });
+
+    res.json(products);
+
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
   }
 };

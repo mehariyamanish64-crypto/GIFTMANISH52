@@ -1,68 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const Product = require("../models/Product");
+
+const {
+  addProduct,
+  getProducts,
+  getSingleProduct,
+  getProductsByCategory
+} = require("../controllers/productController");
 
 
 // ADD PRODUCT
-router.post("/add", async (req, res) => {
-  try {
-    const { name, price, image, description, category } = req.body;
-
-    const product = await Product.create({
-      name,
-      price,
-      image,
-      description,
-      category,
-    });
-
-    res.status(201).json(product);
-
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
+router.post("/add", addProduct);
 
 // GET ALL PRODUCTS
-router.get("/", async (req, res) => {
-  try {
+router.get("/", getProducts);
 
-    const products = await Product.find();
-    res.json(products);
+// CATEGORY ROUTE
+router.get("/category/:categoryName", getProductsByCategory);
 
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
-
-// ✅ CATEGORY ROUTE FIRST
-router.get("/category/:categoryName", async (req, res) => {
-  try {
-
-    const categoryName = req.params.categoryName;
-    const products = await Product.find({ category: categoryName });
-
-    res.json(products);
-
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
-
-// ✅ SINGLE PRODUCT ROUTE LAST
-router.get("/:id", async (req, res) => {
-  try {
-
-    const product = await Product.findById(req.params.id);
-
-    res.json(product);
-
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
+// SINGLE PRODUCT
+router.get("/:id", getSingleProduct);
 
 module.exports = router;
