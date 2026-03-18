@@ -14,9 +14,9 @@ const productSchema = new mongoose.Schema({
 
   discount: Number,
 
-  images: [String],   // multiple images
+  image: String,   // ⭐ FIX HERE
 
-  colors: [String],   // color options
+  colors: [String],
 
   description: String,
 

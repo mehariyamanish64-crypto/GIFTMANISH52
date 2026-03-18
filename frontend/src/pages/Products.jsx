@@ -1,8 +1,7 @@
-// src/pages/Products.jsx
-
 import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import ProductCard from "../components/ProductCard";
+import { useNavigate } from "react-router-dom";
 import "../styles/Products.css";
 
 const categories = [
@@ -24,26 +23,30 @@ export default function Products() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const [cart, setCart] = useState(
-    () => JSON.parse(localStorage.getItem("cart")) || []
-  );
+  const navigate = useNavigate();
+
 
   // Fetch Products
   useEffect(() => {
 
     const fetchProducts = async () => {
 
-      const url = selectedCategory
-        ? `/products/category/${encodeURIComponent(selectedCategory)}`
-        : "/products";
+      try {
 
-      const res = await axiosInstance.get(url);
+        const url = selectedCategory
+          ? `/products/category/${encodeURIComponent(selectedCategory)}`
+          : "/products";
 
-      setProducts(res.data);
-      setFilteredProducts(res.data);
+        const res = await axiosInstance.get(url);
+
+        setProducts(res.data);
+        setFilteredProducts(res.data);
+
+      } catch (error) {
+        console.log("Product Fetch Error:", error);
+      }
 
     };
 
@@ -52,8 +55,7 @@ export default function Products() {
   }, [selectedCategory]);
 
 
-
-  // SEARCH + SUGGESTIONS
+  // SEARCH
   useEffect(() => {
 
     const term = searchTerm.toLowerCase();
@@ -71,11 +73,8 @@ export default function Products() {
 
     setFilteredProducts(matched);
 
-    // Suggestions (max 5)
     const sug = products
-      .filter((p) =>
-        p.name.toLowerCase().includes(term)
-      )
+      .filter((p) => p.name.toLowerCase().includes(term))
       .slice(0,5);
 
     setSuggestions(sug);
@@ -83,8 +82,6 @@ export default function Products() {
   }, [searchTerm, products]);
 
 
-
-  // Select suggestion
   const handleSuggestionClick = (name) => {
 
     setSearchTerm(name);
@@ -99,20 +96,40 @@ export default function Products() {
   };
 
 
+  // ADD TO CART
+  const handleAddToCart = async (product) => {
 
-  // Add To Cart
-  const handleAddToCart = (product) => {
+    try {
 
-    const updatedCart = [...cart, product];
+      await axiosInstance.post("/cart/add", {
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1
+      });
 
-    setCart(updatedCart);
+      alert(product.name + " added to cart");
 
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    } catch (error) {
 
-    alert(`${product.name} added to cart`);
+      console.log("Cart Error:", error.response?.data || error.message);
+      alert("Failed to add to cart");
+
+    }
 
   };
 
+
+  // BUY NOW
+  const handleBuyNow = (product) => {
+
+    navigate("/checkout", {
+      state: {
+        products: [product]
+      }
+    });
+
+  };
 
 
   return (
@@ -120,7 +137,6 @@ export default function Products() {
     <div className="products-container">
 
       <h1>Products</h1>
-
 
       {/* SEARCH */}
 
@@ -133,14 +149,12 @@ export default function Products() {
           onChange={(e)=>setSearchTerm(e.target.value)}
         />
 
-        {/* Suggestions */}
-
         {suggestions.length > 0 && (
 
           <div className="suggestion-box">
 
             {suggestions.map((item)=>(
-              
+
               <div
                 key={item._id}
                 className="suggestion-item"
@@ -158,7 +172,6 @@ export default function Products() {
       </div>
 
 
-
       {/* CATEGORY */}
 
       <div className="category-menu">
@@ -171,6 +184,7 @@ export default function Products() {
         </button>
 
         {categories.map((cat)=>(
+
           <button
             key={cat}
             className={selectedCategory === cat ? "active" : ""}
@@ -178,10 +192,10 @@ export default function Products() {
           >
             {cat}
           </button>
+
         ))}
 
       </div>
-
 
 
       {/* PRODUCTS */}
@@ -191,11 +205,12 @@ export default function Products() {
         {filteredProducts.length > 0 ? (
 
           filteredProducts.map((product)=>(
-            
+
             <ProductCard
               key={product._id}
               product={product}
               onAddToCart={handleAddToCart}
+              onBuyNow={handleBuyNow}
             />
 
           ))

@@ -27,25 +27,17 @@ export default function Profile() {
   const [tempImage, setTempImage] = useState("");
   const [editMode, setEditMode] = useState(false);
 
-  // Load user
+  // LOAD USER FROM LOGIN
   useEffect(() => {
 
-    const currentUserEmail = localStorage.getItem("currentUserEmail");
+    const savedUser = JSON.parse(localStorage.getItem("user"));
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const currentUser = users.find(u => u.email === currentUserEmail);
-
-    if (currentUser) {
-
-      setUser(currentUser);
-      setTempImage(currentUser.image || "");
-
+    if (savedUser) {
+      setUser(savedUser);
+      setTempImage(savedUser.image || "");
     }
 
   }, []);
-
-
 
   const handleChange = (e) => {
 
@@ -54,8 +46,6 @@ export default function Profile() {
     setUser(prev => ({ ...prev, [name]: value }));
 
   };
-
-
 
   // PINCODE API
   const handlePincodeBlur = async () => {
@@ -97,8 +87,6 @@ export default function Profile() {
 
   };
 
-
-
   const handleImageUpload = (e) => {
 
     const file = e.target.files[0];
@@ -114,8 +102,6 @@ export default function Profile() {
     }
 
   };
-
-
 
   // SAVE PROFILE
   const handleSave = () => {
@@ -136,15 +122,9 @@ export default function Profile() {
 
     }
 
-    const currentUserEmail = user.email;
-
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
     const updatedUser = { ...user, image: tempImage };
 
-    const otherUsers = users.filter(u => u.email !== currentUserEmail);
-
-    localStorage.setItem("users", JSON.stringify([...otherUsers, updatedUser]));
+    localStorage.setItem("user", JSON.stringify(updatedUser));
 
     setUser(updatedUser);
 
@@ -154,22 +134,17 @@ export default function Profile() {
 
   };
 
-
-
   // LOGOUT
   const handleLogout = () => {
 
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("currentUserEmail");
 
     alert("Logged out successfully");
 
-    navigate("/");
+    navigate("/login");
 
   };
-
-
 
   return (
 
@@ -178,7 +153,6 @@ export default function Profile() {
       <div className="profile-card">
 
         <h2>My Profile</h2>
-
 
         {tempImage || user.image ? (
 
@@ -196,16 +170,23 @@ export default function Profile() {
 
         )}
 
-
+        {/* NAME & EMAIL (READ ONLY) */}
 
         <div className="profile-info">
 
-          <div><strong>Name:</strong> {user.name}</div>
-          <div><strong>Email:</strong> {user.email}</div>
+          <input
+            type="text"
+            value={user.name}
+            readOnly
+          />
+
+          <input
+            type="email"
+            value={user.email}
+            readOnly
+          />
 
         </div>
-
-
 
         {editMode && (
 
@@ -236,9 +217,6 @@ export default function Profile() {
               onBlur={handlePincodeBlur}
             />
 
-
-            {/* Village Dropdown */}
-
             {villages.length > 0 && (
 
               <select
@@ -256,10 +234,6 @@ export default function Profile() {
               </select>
 
             )}
-
-
-
-            {/* Taluka Dropdown */}
 
             {talukas.length > 0 && (
 
@@ -279,12 +253,9 @@ export default function Profile() {
 
             )}
 
-
-
             <input
               type="text"
               name="district"
-              placeholder="District"
               value={user.district}
               readOnly
             />
@@ -292,17 +263,15 @@ export default function Profile() {
             <input
               type="text"
               name="state"
-              placeholder="State"
               value={user.state}
               readOnly
             />
-
 
             <div className="radio-group">
 
               <label><strong>Gender:</strong></label>
 
-              <label className="radio-label">
+              <label>
                 <input
                   type="radio"
                   name="gender"
@@ -313,7 +282,7 @@ export default function Profile() {
                 Male
               </label>
 
-              <label className="radio-label">
+              <label>
                 <input
                   type="radio"
                   name="gender"
@@ -326,30 +295,22 @@ export default function Profile() {
 
             </div>
 
-
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
             />
 
-
-            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-
-              <button
-                className="profile-button"
-                onClick={handleSave}
-              >
-                Save
-              </button>
-
-            </div>
+            <button
+              className="profile-button"
+              onClick={handleSave}
+            >
+              Save
+            </button>
 
           </>
 
         )}
-
-
 
         {!editMode && (
 

@@ -15,6 +15,7 @@ export default function ProductDetails() {
   useEffect(() => {
 
     const fetchProduct = async () => {
+
       try {
 
         const res = await axiosInstance.get(`/products/${id}`);
@@ -28,8 +29,11 @@ export default function ProductDetails() {
         );
 
       } catch (err) {
+
         console.log(err);
+
       }
+
     };
 
     fetchProduct();
@@ -38,24 +42,33 @@ export default function ProductDetails() {
 
   if (!product) return <h2>Loading...</h2>;
 
-  // Add to Cart
-  const handleAddToCart = () => {
 
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  // ADD TO CART (MongoDB)
+  const handleAddToCart = async () => {
 
-    const newProduct = {
-      ...product,
-      quantity: quantity
-    };
+    try {
 
-    const updatedCart = [...cart, newProduct];
+      await axiosInstance.post("/cart/add", {
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: quantity
+      });
 
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+      alert(product.name + " added to cart ✅");
 
-    alert(`${product.name} added to cart ✅`);
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to add to cart");
+
+    }
+
   };
 
-  // Buy Now
+
+  // BUY NOW → Checkout
   const handleBuyNow = () => {
 
     const buyProduct = {
@@ -63,12 +76,17 @@ export default function ProductDetails() {
       quantity: quantity
     };
 
-    localStorage.setItem("cart", JSON.stringify([buyProduct]));
+    navigate("/checkout", {
+      state: {
+        products: [buyProduct]
+      }
+    });
 
-    navigate("/checkout");
   };
 
+
   return (
+
     <div className="product-page">
 
       {/* LEFT IMAGE */}
@@ -77,17 +95,22 @@ export default function ProductDetails() {
         <img className="main-img" src={mainImage} alt={product.name} />
 
         <div className="thumbnail">
+
           {(product.images || [product.image]).map((img, idx) => (
+
             <img
               key={idx}
               src={img}
               alt=""
               onClick={() => setMainImage(img)}
             />
+
           ))}
+
         </div>
 
       </div>
+
 
       {/* RIGHT INFO */}
       <div className="product-info">
@@ -97,6 +120,7 @@ export default function ProductDetails() {
         <div className="price-box">
 
           {product.discount ? (
+
             <>
               <span className="old-price">₹{product.price}</span>
               <span className="discount">{product.discount}% OFF</span>
@@ -104,40 +128,58 @@ export default function ProductDetails() {
                 ₹{Math.round(product.price * (1 - product.discount / 100))}
               </span>
             </>
+
           ) : (
+
             <span className="final-price">₹{product.price}</span>
+
           )}
 
         </div>
 
+
         {/* Quantity */}
+
         <div className="qty">
 
-          <button onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}>
+          <button
+            onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}
+          >
             -
           </button>
 
           <span>{quantity}</span>
 
-          <button onClick={() => setQuantity(prev => prev + 1)}>
+          <button
+            onClick={() => setQuantity(prev => prev + 1)}
+          >
             +
           </button>
 
         </div>
 
+
         {/* Buttons */}
 
-        <button className="cart-btn" onClick={handleAddToCart}>
+        <button
+          className="cart-btn"
+          onClick={handleAddToCart}
+        >
           Add to Cart
         </button>
 
-        <button className="buy-btn" onClick={handleBuyNow}>
+        <button
+          className="buy-btn"
+          onClick={handleBuyNow}
+        >
           Buy Now
         </button>
 
+
         <p className="desc">{product.description}</p>
 
-        {/* Only One Back Button at Bottom */}
+
+        {/* Back Button */}
 
         <button
           onClick={() => navigate(-1)}
@@ -157,5 +199,7 @@ export default function ProductDetails() {
       </div>
 
     </div>
+
   );
+
 }

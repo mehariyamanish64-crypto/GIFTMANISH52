@@ -7,8 +7,11 @@ export default function ProductCard({ product, onAddToCart }) {
   const navigate = useNavigate();
 
   const handleBuyNow = () => {
-    localStorage.setItem("cart", JSON.stringify([product]));
-    navigate("/checkout");
+    navigate("/checkout", {
+      state: {
+        products: [product]
+      }
+    });
   };
 
   const goToProduct = () => {
@@ -20,10 +23,13 @@ export default function ProductCard({ product, onAddToCart }) {
 
       {/* Product Image */}
       <img
-        src={product.image}
+        src={product.image}   // ✅ FIX HERE
         alt={product.name}
         onClick={goToProduct}
         style={{ cursor: "pointer" }}
+        onError={(e)=>{
+          e.target.src="https://via.placeholder.com/250?text=No+Image"
+        }}
       />
 
       {/* Product Info */}
@@ -33,14 +39,23 @@ export default function ProductCard({ product, onAddToCart }) {
         style={{ cursor: "pointer" }}
       >
         <h3>{product.name}</h3>
-        <div className="category">{product.category}</div>
-        <p className="price">₹{product.price}</p>
+
+        <div className="category">
+          {product.category}
+        </div>
+
+        <p className="price">
+          ₹{product.price}
+        </p>
       </div>
 
       {/* Buttons */}
       <div className="product-card-buttons">
 
-        <button className="buy-btn" onClick={handleBuyNow}>
+        <button
+          className="buy-btn"
+          onClick={handleBuyNow}
+        >
           Buy Now
         </button>
 

@@ -1,152 +1,119 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Checkout() {
 
-  const navigate = useNavigate();
+const navigate = useNavigate();
+const location = useLocation();
+const [cart, setCart] = useState([]);
 
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+useEffect(() => {
+if (location.state && location.state.products) {
+setCart(location.state.products);
+}
+}, [location]);
 
-  const totalAmount = cart.reduce(
-    (acc, item) => acc + Number(item.price) * (item.quantity || 1),
-    0
-  );
+const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Back button function
-  const handleBack = () => {
-    navigate(-1); // previous page
-  };
+const handlePayment = async () => {
 
-  const handlePayment = async () => {
+try {
 
-    const token = localStorage.getItem("token");
+const res = await axiosInstance.post("/orders/create-order", {
+amount: totalAmount
+});
 
-    if (!token) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
+const orderData = res.data;
+const razorpayOrder = orderData.razorpayOrder;
 
-    try {
+const options = {
 
-      const res = await axiosInstance.post(
-        "/orders/create-order",
-        { amount: totalAmount },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+key: "rzp_test_SNu5v4Q0mXARq1",
 
-      const order = res.data;
+amount: razorpayOrder.amount,
+currency: razorpayOrder.currency,
+name: "Gift Shop",
+description: "Order Payment",
 
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "GiftShop",
-        description: "Gift Purchase",
-        order_id: order.id,
+order_id: razorpayOrder.id,
 
-        handler: function (response) {
+handler: async function (response) {
 
-          alert("Payment Successful ✅");
-          console.log(response);
+await axiosInstance.post("/orders/payment-success", {
 
-          localStorage.removeItem("cart");
+razorpayPaymentId: response.razorpay_payment_id,
+razorpayOrderId: response.razorpay_order_id,
+razorpaySignature: response.razorpay_signature,
 
-          navigate("/profile");
-        },
+orderId: orderData.orderId
 
-        theme: {
-          color: "#ff9900",
-        },
-      };
+});
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+alert("Payment Successful");
 
-    } catch (error) {
-      console.log(error);
-      alert("Payment failed");
-    }
-  };
+navigate("/orders");
 
-  return (
-    <div style={{ padding: "40px", maxWidth: "600px", margin: "auto" }}>
+},
 
-      {/* Back Button */}
-      <button
-        onClick={handleBack}
-        style={{
-          marginBottom: "20px",
-          padding: "8px 16px",
-          background: "#555",
-          color: "#fff",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer"
-        }}
-      >
-        ← Back
-      </button>
+prefill: {
+name: "Customer",
+email: "customer@gmail.com",
+contact: "9999999999"
+},
 
-      <h1>Checkout</h1>
+theme: {
+color: "#3399cc"
+}
 
-      {cart.map((item, index) => (
-        <div
-          key={index}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-            border: "1px solid #ddd",
-            padding: "10px",
-            borderRadius: "8px",
-            marginBottom: "10px"
-          }}
-        >
+};
 
-          <img
-            src={item.image}
-            alt={item.name}
-            style={{
-              width: "60px",
-              height: "60px",
-              objectFit: "cover",
-              borderRadius: "6px"
-            }}
-          />
+const rzp = new window.Razorpay(options);
 
-          <div>
-            <h4>{item.name}</h4>
-            <p>Price: ₹{item.price}</p>
-            <p>Qty: {item.quantity || 1}</p>
-            <p>Total: ₹{item.price * (item.quantity || 1)}</p>
-          </div>
+rzp.on("payment.failed", function (response) {
 
-        </div>
-      ))}
+alert("Payment Failed");
 
-      <h2>Total Amount: ₹{totalAmount}</h2>
+console.log(response.error);
 
-      <button
-        onClick={handlePayment}
-        style={{
-          padding: "12px 20px",
-          background: "#ff9900",
-          border: "none",
-          color: "#fff",
-          fontSize: "16px",
-          cursor: "pointer",
-          borderRadius: "8px"
-        }}
-      >
-        Pay Now
-      </button>
+});
 
-    </div>
-  );
+rzp.open();
+
+} catch (error) {
+
+console.log(error);
+
+}
+
+};
+
+return (
+
+<div>
+
+<h2>Checkout Page</h2>
+
+{cart.map((item, index) => (
+
+<div key={index}>
+
+<p>{item.name}</p>
+<p>Price: ₹{item.price}</p>
+<p>Quantity: {item.quantity}</p>
+
+</div>
+
+))}
+
+<h3>Total Amount : ₹{totalAmount}</h3>
+
+<button onClick={handlePayment}>
+Pay Now
+</button>
+
+</div>
+
+);
+
 }

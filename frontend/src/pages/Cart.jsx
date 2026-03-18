@@ -1,5 +1,5 @@
-// src/pages/Cart.jsx
 import { useState, useEffect } from "react";
+import axiosInstance from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
@@ -7,149 +7,155 @@ export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
 
-  // Load cart from localStorage
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCart);
+    fetchCart();
   }, []);
 
-  // Back Button
-  const handleBack = () => {
-    navigate(-1);
+
+  const fetchCart = async () => {
+
+    try {
+
+      const res = await axiosInstance.get("/cart");
+
+      setCartItems(res.data);
+
+    } catch (error) {
+
+      console.log("Cart Load Error:", error);
+
+    }
+
   };
+
 
   // Remove single item
-  const handleRemove = (index) => {
+  const handleRemove = async (id) => {
 
-    const updatedCart = [...cartItems];
-    const removedItem = updatedCart.splice(index, 1)[0];
+    try {
 
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+      await axiosInstance.delete(`/cart/remove/${id}`);
 
-    alert(`${removedItem.name} removed from cart ❌`);
+      fetchCart();
+
+      alert("Item removed");
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
   };
+
+
+  // Remove all items
+  const handleRemoveAll = async () => {
+
+    try {
+
+      await axiosInstance.delete("/cart/remove-all");
+
+      setCartItems([]);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
 
   // Buy single item
   const handleBuyNow = (item) => {
 
-    localStorage.setItem("cart", JSON.stringify([item]));
+    navigate("/checkout", { state: { products: [item] } });
 
-    navigate("/checkout");
   };
 
-  // Remove all items
-  const handleRemoveAll = () => {
-
-    if (window.confirm("Are you sure you want to remove all items?")) {
-      setCartItems([]);
-      localStorage.removeItem("cart");
-    }
-  };
 
   // Buy all items
   const handleBuyAll = () => {
 
     if (cartItems.length === 0) {
-      alert("Cart is empty 😢");
+      alert("Cart is empty");
       return;
     }
 
-    navigate("/checkout");
+    navigate("/checkout", { state: { products: cartItems } });
+
   };
 
+
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "50px auto",
-        fontFamily: "Poppins"
-      }}
-    >
 
-      {/* Back Button */}
-      <button
-        onClick={handleBack}
-        style={{
-          marginBottom: "20px",
-          padding: "8px 16px",
-          background: "#444",
-          color: "#fff",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer"
-        }}
-      >
-        ← Back
-      </button>
+    <div style={{ maxWidth: "600px", margin: "50px auto" }}>
 
-      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
-        Your Cart
-      </h2>
+      <h2 style={{ textAlign: "center" }}>Your Cart</h2>
 
       {cartItems.length === 0 ? (
-        <p style={{ textAlign: "center" }}>Cart is empty 😢</p>
+
+        <p style={{ textAlign: "center" }}>Cart is empty</p>
+
       ) : (
+
         <>
-          {cartItems.map((item, index) => (
+
+          {cartItems.map((item) => (
+
             <div
-              key={index}
+              key={item._id}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: "15px",
-                padding: "10px 15px",
+                padding: "10px",
                 background: "#2c2c3e",
                 borderRadius: "10px",
-                color: "#fff"
+                color: "#fff",
               }}
             >
 
-              {/* Product Image */}
               <img
                 src={item.image}
                 alt={item.name}
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  objectFit: "cover",
-                  borderRadius: "6px"
-                }}
+                style={{ width: "50px", height: "50px" }}
               />
 
-              {/* Product Info */}
               <div style={{ flex: 1, marginLeft: "15px" }}>
                 <h4>{item.name}</h4>
                 <p>₹{item.price}</p>
               </div>
 
-              {/* Buttons */}
               <div style={{ display: "flex", gap: "10px" }}>
+
+                {/* Buy Now */}
 
                 <button
                   onClick={() => handleBuyNow(item)}
                   style={{
                     padding: "6px 12px",
-                    borderRadius: "6px",
+                    background: "#28a745",
                     border: "none",
-                    backgroundColor: "#ffd700",
-                    color: "#222",
-                    cursor: "pointer"
+                    color: "#fff",
+                    borderRadius: "6px",
                   }}
                 >
                   Buy Now
                 </button>
 
+                {/* Remove */}
+
                 <button
-                  onClick={() => handleRemove(index)}
+                  onClick={() => handleRemove(item._id)}
                   style={{
                     padding: "6px 12px",
-                    borderRadius: "6px",
+                    background: "red",
                     border: "none",
-                    backgroundColor: "#ff4d4d",
                     color: "#fff",
-                    cursor: "pointer"
+                    borderRadius: "6px",
                   }}
                 >
                   Remove
@@ -158,9 +164,11 @@ export default function Cart() {
               </div>
 
             </div>
+
           ))}
 
           {/* Bottom Buttons */}
+
           <div
             style={{
               display: "flex",
@@ -173,37 +181,37 @@ export default function Cart() {
             <button
               onClick={handleBuyAll}
               style={{
-                padding: "12px 25px",
-                borderRadius: "8px",
-                border: "none",
-                backgroundColor: "#28a745",
+                padding: "10px 20px",
+                background: "#28a745",
                 color: "#fff",
-                fontWeight: 600,
-                cursor: "pointer"
+                border: "none",
+                borderRadius: "8px",
               }}
             >
-              Buy All
+              Buy Now All
             </button>
 
             <button
               onClick={handleRemoveAll}
               style={{
-                padding: "12px 25px",
-                borderRadius: "8px",
-                border: "none",
-                backgroundColor: "#dc3545",
+                padding: "10px 20px",
+                background: "red",
                 color: "#fff",
-                fontWeight: 600,
-                cursor: "pointer"
+                border: "none",
+                borderRadius: "8px",
               }}
             >
               Remove All
             </button>
 
           </div>
+
         </>
+
       )}
 
     </div>
+
   );
+
 }

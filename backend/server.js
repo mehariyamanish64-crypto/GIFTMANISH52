@@ -5,26 +5,30 @@ require("dotenv").config();
 
 const app = express();
 
-// ================= MIDDLEWARE =================
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// ================= MONGODB CONNECTION =================
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected Successfully"))
-  .catch((err) => console.log("❌ MongoDB Connection Error:", err));
+.then(() => console.log("✅ MongoDB Connected Successfully"))
+.catch((err) => console.log("MongoDB Connection Error:", err));
 
-// ================= ROUTES =================
+// Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
-app.use("/api/orders", require("./routes/orderRoutes")); // ✅ Razorpay Payment Route
+app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/cart", require("./routes/cartRoutes"));
 
-// ================= DEFAULT ROUTE =================
+// ⭐ IMAGE PROXY ROUTE ADD
+app.use("/api/image", require("./routes/imageProxy"));
+
+// Default Route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// ================= SERVER START =================
+// Server
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
